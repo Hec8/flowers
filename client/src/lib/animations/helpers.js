@@ -25,9 +25,13 @@ export function buildScrollTriggerConfig(container, options = {}) {
 
 /**
  * Révèle des éléments en cascade au scroll.
- * — Si la section est déjà dans le viewport au montage : révélation immédiate (pas de flash blanc).
- * — Sinon : caché → révélé au scroll vers le bas ET vers le haut (onEnterBack).
- * — Les éléments révélés restent visibles (jamais cachés à nouveau).
+ *
+ * Stratégie robuste :
+ * - On utilise ScrollTrigger avec toggleActions 'play none none reverse'
+ *   → révélation à l'entrée, retour à l'état initial quand on quitte
+ *   → mais pour qu'ils restent visibles une fois révélés, on track "hasPlayed"
+ * - Si la section est déjà dans le viewport au montage : révélation immédiate
+ *   sans masquage préalable (évite le flash blanc).
  */
 export function scrollStaggerIn(container, selector, options = {}) {
   if (!container) return null;
@@ -61,21 +65,22 @@ export function scrollStaggerIn(container, selector, options = {}) {
     });
   };
 
-  // Déjà visible → pas de masquage initial → révélation immédiate légère
+  // Si la section est déjà visible au chargement → révélation immédiate, pas de masquage
   if (isInViewport(container)) {
-    // S'assurer que les éléments sont visibles (reset propre)
-    gsap.set(targets, { opacity: 1, y: 0, scale: 1, rotation: 0, clearProps: 'transform,opacity' });
+    gsap.set(targets, { clearProps: 'all' });
     return null;
   }
 
-  // Masquer les éléments hors viewport avant qu'ils n'entrent
+  // Masquer les éléments hors viewport
   gsap.set(targets, { ...from, force3D: true });
 
+  // ScrollTrigger : révèle à l'entrée ET à la remontée, jamais re-caché
+  let revealed = false;
   return ScrollTrigger.create({
     trigger: container,
     start: options.start ?? SCROLL_TRIGGER.start,
-    onEnter: animateIn,
-    onEnterBack: animateIn,
+    onEnter: () => { if (!revealed) { revealed = true; animateIn(); } else { animateIn(); } },
+    onEnterBack: () => { animateIn(); },
   });
 }
 

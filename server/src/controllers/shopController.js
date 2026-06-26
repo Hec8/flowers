@@ -560,6 +560,7 @@ export const getDashboard = async (req, res) => {
     recentOrders,
     lowStockProducts,
     paidOrders,
+    unreadMessages,
   ] = await Promise.all([
     prisma.product.count({ where: { isActive: true } }),
     prisma.product.count({ where: { isActive: true, stock: 0 } }),
@@ -593,6 +594,7 @@ export const getDashboard = async (req, res) => {
       },
       select: { createdAt: true, totalAmount: true },
     }),
+    prisma.contactMessage.count({ where: { isRead: false } }),
   ]);
 
   const charts = buildDashboardCharts(paidOrders, now);
@@ -610,6 +612,7 @@ export const getDashboard = async (req, res) => {
         pendingOrdersPercent: totalOrders
           ? Math.round((pendingOrders / totalOrders) * 100)
           : 0,
+        unreadMessages,
       },
       weeklyOrders: charts.weeklyOrders,
       dailyOrders: charts.dailyOrders,

@@ -32,6 +32,7 @@ import AdminUsersPage from './pages/admin/AdminUsersPage';
 import AdminProducersPage from './pages/admin/AdminProducersPage';
 import AdminCategoriesPage from './pages/admin/AdminCategoriesPage';
 import AdminInboxPage from './pages/admin/AdminInboxPage';
+import ScrollToTop from './components/layout/ScrollToTop';
 
 const queryClient = new QueryClient({
   defaultOptions: { queries: { retry: 1, staleTime: 30000 } },
@@ -43,6 +44,7 @@ export default function App() {
       <AuthProvider>
         <CartProvider>
           <BrowserRouter>
+            <ScrollToTop />
             <Routes>
               <Route path="/" element={<HomePage />} />
               <Route path="/produits" element={<ProductsPage />} />

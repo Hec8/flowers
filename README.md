@@ -51,25 +51,33 @@ Flowers/
 
 ## Installation
 
+> **Important (monorepo)** : un seul `npm install` à la racine **ne suffit pas**.  
+> Il faut aussi installer les dépendances du **client** (Vite) et du **serveur** (Nodemon, Prisma).
+
 ```bash
-# 1. Cloner et installer les dépendances
+# 1. Installer TOUTES les dépendances (racine + server + client)
 cd Flowers
-npm install
-cd server && npm install
-cd ../client && npm install
+npm run install:all
+
+# Équivalent manuel si besoin :
+# npm install
+# npm install --prefix server
+# npm install --prefix client
 
 # 2. Configurer l'environnement serveur
-cp server/.env.example server/.env
-# Éditer server/.env avec vos credentials PostgreSQL
+# Windows (PowerShell) : copier server\.env.example vers server\.env
+# Linux/Mac : cp server/.env.example server/.env
+# Éditer server/.env avec DATABASE_URL, JWT, FEADAPAY_*, CLIENT_URL
 
 # 3. Configurer le client (optionnel)
-cp client/.env.example client/.env
+# cp client/.env.example client/.env
 
 # 4. Initialiser la base de données
 cd server
 npx prisma generate
 npx prisma db push
 npm run db:seed
+cd ..
 ```
 
 ## Lancement

@@ -90,7 +90,7 @@ export default function MaisonDecoPage() {
         </div>
 
         {/* Description commune */}
-        <p className="text-sm text-gray-600 leading-relaxed text-center max-w-4xl mx-auto mb-10">
+        <p className="text-sm text-gray-600 leading-relaxed text-center mb-10">
           {MAISON_DECO_DESCRIPTION}
         </p>
 

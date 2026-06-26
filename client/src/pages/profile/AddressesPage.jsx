@@ -1,13 +1,13 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
-import { Pencil, Trash2 } from 'lucide-react';
+import { Pencil, Trash2, X } from 'lucide-react';
 import AccountLayout from '../../components/account/AccountLayout';
 import { authService } from '../../services';
 import { useAuth } from '../../context/AuthContext';
 
-const emptyForm = { label: '', phone: '', country: 'Bénin', city: '', isDefault: false };
+const emptyForm = { label: '', phone: '', country: 'Bénin', city: '', street: '', isDefault: false };
 
 export default function AddressesPage() {
   const { isAuthenticated, user } = useAuth();
@@ -15,6 +15,23 @@ export default function AddressesPage() {
   const [modalOpen, setModalOpen] = useState(false);
   const [editing, setEditing] = useState(null);
   const [form, setForm] = useState(emptyForm);
+
+  const closeModal = () => {
+    setModalOpen(false);
+    setEditing(null);
+    setForm(emptyForm);
+  };
+
+  useEffect(() => {
+    if (!modalOpen) return;
+    const onKey = (e) => { if (e.key === 'Escape') closeModal(); };
+    document.addEventListener('keydown', onKey);
+    document.body.style.overflow = 'hidden';
+    return () => {
+      document.removeEventListener('keydown', onKey);
+      document.body.style.overflow = '';
+    };
+  }, [modalOpen]);
 
   const { data: addresses } = useQuery({
     queryKey: ['addresses'],
@@ -27,8 +44,7 @@ export default function AddressesPage() {
       editing ? authService.updateAddress(editing.id, form) : authService.createAddress(form),
     onSuccess: () => {
       queryClient.invalidateQueries(['addresses']);
-      setModalOpen(false);
-      setEditing(null);
+      closeModal();
       toast.success('Adresse enregistrée');
     },
     onError: (err) => toast.error(err.response?.data?.message),
@@ -105,11 +121,33 @@ export default function AddressesPage() {
       </div>
 
       {modalOpen && (
-        <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-black/40">
-          <div className="bg-white rounded-t-xl sm:rounded-xl shadow-xl w-full sm:max-w-lg p-6 max-h-[90vh] overflow-y-auto">
-            <h2 className="font-bold text-primary text-center mb-6">Enregistrer une adresse</h2>
+        <div
+          className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-black/40"
+          onClick={closeModal}
+          role="presentation"
+        >
+          <div
+            className="bg-white rounded-t-xl sm:rounded-xl shadow-xl w-full sm:max-w-lg p-6 max-h-[90vh] overflow-y-auto relative"
+            onClick={(e) => e.stopPropagation()}
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="address-modal-title"
+          >
+            <button
+              type="button"
+              onClick={closeModal}
+              className="absolute top-4 right-4 p-1.5 rounded-full text-gray-400 hover:text-gray-700 hover:bg-gray-100 transition-colors"
+              aria-label="Fermer"
+            >
+              <X size={20} />
+            </button>
+
+            <h2 id="address-modal-title" className="font-bold text-primary text-center mb-6 pr-8">
+              {editing ? 'Modifier l\'adresse' : 'Enregistrer une adresse'}
+            </h2>
+
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
-              <div className="col-span-1 sm:col-span-1">
+              <div>
                 <label className="text-sm text-primary mb-1 block">Nom & Prénoms</label>
                 <input
                   value={form.label}
@@ -118,7 +156,7 @@ export default function AddressesPage() {
                   className="w-full border rounded-md px-4 py-2.5 text-sm bg-gray-50"
                 />
               </div>
-              <div className="col-span-1 sm:col-span-1">
+              <div>
                 <label className="text-sm text-primary mb-1 block">Numéro de téléphone</label>
                 <div className="flex gap-2">
                   <span className="border rounded-md px-2 py-2.5 text-sm bg-gray-50">🇧🇯</span>
@@ -161,6 +199,7 @@ export default function AddressesPage() {
                 />
               </div>
             </div>
+
             <label className="flex items-center gap-2 text-sm text-gray-600 mb-6">
               <input
                 type="checkbox"
@@ -169,13 +208,14 @@ export default function AddressesPage() {
               />
               Définir comme adresse de livraison par défaut
             </label>
+
             <div className="flex justify-end gap-3">
               <button
                 type="button"
-                onClick={() => { setForm(emptyForm); setEditing(null); }}
-                className="px-5 py-2 border rounded-md text-sm"
+                onClick={closeModal}
+                className="px-5 py-2 border rounded-md text-sm hover:bg-gray-50"
               >
-                Réinitialiser
+                Annuler
               </button>
               <button
                 type="button"

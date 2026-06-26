@@ -48,7 +48,30 @@ export default function ProductDetailPage() {
   });
 
   const staticProduct = getStaticProductBySlug(slug);
-  const product = apiProduct || staticProduct;
+
+  // Si le produit vient de l'API mais que ses images sont vides (produit seedé
+  // depuis le catalogue statique), on injecte les images du statique.
+  const product = apiProduct
+    ? {
+        ...apiProduct,
+        imageUrls:
+          apiProduct.imageUrls?.length
+            ? apiProduct.imageUrls
+            : (staticProduct?.imageUrls || []),
+        // Données riches venant du statique si absentes de l'API
+        features: apiProduct.features?.length ? apiProduct.features : staticProduct?.features,
+        careTips: apiProduct.careTips?.length ? apiProduct.careTips : staticProduct?.careTips,
+        characteristics: Object.keys(apiProduct.characteristics || {}).length
+          ? apiProduct.characteristics
+          : staticProduct?.characteristics,
+        bienfaits: staticProduct?.bienfaits,
+        signification: staticProduct?.signification,
+        plantation: staticProduct?.plantation,
+        detailTitle: staticProduct?.detailTitle,
+        detailDescription: staticProduct?.detailDescription,
+        descriptionSections: staticProduct?.descriptionSections,
+      }
+    : staticProduct;
   const isStatic = !apiProduct && !!staticProduct;
 
   const reviewMutation = useMutation({
@@ -149,11 +172,11 @@ export default function ProductDetailPage() {
       </div>
 
       {/* Product hero */}
-      <div className="max-w-7xl mx-auto px-4 py-8">
-        <div className="grid lg:grid-cols-12 gap-8">
+      <div className="max-w-7xl mx-auto px-4 py-6 sm:py-8">
+        <div className="grid lg:grid-cols-12 gap-6 lg:gap-8">
 
-          {/* ── Col 1 : Image ── */}
-          <div className="lg:col-span-4">
+          {/* ── Col 1 : Image ── ordre 2 mobile (titre passe avant) */}
+          <div className="order-2 lg:order-1 lg:col-span-4">
             <div className="bg-gray-100 aspect-square flex items-center justify-center overflow-hidden">
               <img
                 ref={productImgRef}
@@ -188,8 +211,8 @@ export default function ProductDetailPage() {
             </Link>
           </div>
 
-          {/* ── Col 2 : Features + characteristics (sauf jardinage) ── */}
-          <div className="lg:col-span-4 space-y-6">
+          {/* ── Col 2 : Features + characteristics — ordre 3 mobile ── */}
+          <div className="order-3 lg:order-2 lg:col-span-4 space-y-6">
             <ul className="space-y-4">
               {highlights.map((h, i) => (
                 <li key={i} className="flex items-start gap-3 text-sm text-gray-700">
@@ -223,8 +246,8 @@ export default function ProductDetailPage() {
             )}
           </div>
 
-          {/* ── Col 3 : Nom, prix, CTA ── */}
-          <div className="lg:col-span-4">
+          {/* ── Col 3 : Nom, prix, CTA — ordre 1 mobile (en premier) ── */}
+          <div className="order-1 lg:order-3 lg:col-span-4">
             <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-3">{product.name}</h1>
 
             <div className="flex items-center gap-3 mb-1">
@@ -273,7 +296,7 @@ export default function ProductDetailPage() {
       {/* ── Description (engrais + plantes standard) ── */}
       {!isJardinage && !isFleurs && (
         <ScrollRevealSection className="bg-gray-50 py-10" selector="[data-animate-block]">
-          <div className="max-w-4xl mx-auto px-4">
+          <div className="max-w-7xl mx-auto px-4 sm:px-8 lg:px-16">
             <h2 data-animate-block className="text-xl font-bold mb-4">Description</h2>
             <div data-animate-block className="text-sm text-gray-700 leading-relaxed space-y-4">
               <p>{product.description}</p>
@@ -301,7 +324,7 @@ export default function ProductDetailPage() {
           {/* Plantation et multiplication */}
           {product.plantation && (
             <ScrollRevealSection className="bg-white py-12" selector="[data-animate-block]">
-              <div className="max-w-4xl mx-auto px-4">
+              <div className="max-w-7xl mx-auto px-4 sm:px-8 lg:px-16">
                 <h2 data-animate-block className="text-xl font-bold text-gray-900 mb-4">
                   Plantation et multiplication de {product.name.split(' ')[0].replace(/[()]/g, '')}
                 </h2>
@@ -315,7 +338,7 @@ export default function ProductDetailPage() {
           {/* Bienfaits */}
           {product.bienfaits?.length > 0 && (
             <ScrollRevealSection className="bg-green-50 py-12" selector="[data-animate-block]">
-              <div className="max-w-4xl mx-auto px-4">
+              <div className="max-w-7xl mx-auto px-4 sm:px-8 lg:px-16">
                 <h2 data-animate-block className="text-xl font-bold text-gray-900 mb-6">
                   Bienfaits de {product.name.split(' ')[0].replace(/[()]/g, '')}
                 </h2>
@@ -334,7 +357,7 @@ export default function ProductDetailPage() {
           {/* Signification symbolique */}
           {product.signification && (
             <ScrollRevealSection className="bg-white py-12" selector="[data-animate-block]">
-              <div className="max-w-4xl mx-auto px-4">
+              <div className="max-w-7xl mx-auto px-4 sm:px-8 lg:px-16">
                 <h2 data-animate-block className="text-xl font-bold text-gray-900 mb-4">Signification symbolique</h2>
                 <p data-animate-block className="text-sm text-gray-700 leading-relaxed mb-3">
                   <span className="font-semibold text-primary">{product.signification.highlight} </span>

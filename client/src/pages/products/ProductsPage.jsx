@@ -212,13 +212,13 @@ export default function ProductsPage() {
           </section>
 
           {/* Intro catégorie */}
-          <section className="max-w-4xl mx-auto px-4 py-8 sm:py-10 text-center">
+          <section className="w-full px-4 sm:px-8 lg:px-16 py-8 sm:py-10 text-center">
             {!isEngrais && <DiamondTitle>{pageTitle}</DiamondTitle>}
             {isEngrais && (
               <h1 className="text-2xl md:text-3xl font-bold text-gray-900 mb-4">{pageTitle}</h1>
             )}
             <p className="text-primary font-medium mb-3">{section.subtitle}</p>
-            <p className="text-sm text-gray-600 leading-relaxed max-w-2xl mx-auto">{pageDescription}</p>
+            <p className="text-sm text-gray-600 leading-relaxed">{pageDescription}</p>
 
             {(isPlantes || isEngrais || isJardinage || isMaisonDeco || isFleurs) && section.pills && (
               <FilterPills pills={section.pills} isActive={pillActive} onSelect={setFilter} />

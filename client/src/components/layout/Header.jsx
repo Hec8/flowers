@@ -1,7 +1,8 @@
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import {
-  Search, MapPin, User, ShoppingCart, ChevronDown, Leaf, Menu, X,
+  Search, MapPin, User, ShoppingCart, ChevronDown, Menu, X,
 } from 'lucide-react';
+import Logo from '../brand/Logo';
 import { useState, useEffect, useRef } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { useCart } from '../../context/CartContext';
@@ -149,10 +150,7 @@ export default function Header() {
             {menuOpen ? <X size={24} /> : <Menu size={24} />}
           </button>
 
-          <Link to="/" className="flex items-center gap-2 font-bold text-lg text-gray-900">
-            <Leaf className="text-primary" size={24} />
-            <span>NFlowers</span>
-          </Link>
+          <Logo className="h-7 w-auto object-contain" />
 
           <div className="flex items-center gap-1">
             {isAuthenticated ? (
@@ -227,10 +225,7 @@ export default function Header() {
             </button>
           </form>
 
-          <Link to="/" className="flex items-center gap-2 font-bold text-xl text-gray-900 shrink-0">
-            <Leaf className="text-primary" size={28} />
-            <span>NFlowers</span>
-          </Link>
+          <Logo className="h-8 w-auto object-contain" />
 
           <div className="flex items-center gap-6 text-sm shrink-0">
             <Link to="/magasin" className="flex flex-col items-center text-gray-600 hover:text-primary transition-colors">

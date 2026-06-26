@@ -1,7 +1,6 @@
 import { MapPin, Clock, Phone, Navigation } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import MainLayout from '../../components/layout/MainLayout';
-
 const stores = [
   {
     name: 'NFlowers Cotonou — Fidjrossè',
@@ -15,7 +14,7 @@ const stores = [
     address: 'Avenue Jean Paul II, Porto-Novo',
     phone: '(+229) 53 89 36 26',
     hours: 'Lun–Ven 9h–18h',
-    image: 'https://images.unsplash.com/photo-1466692476866-aef1dfb1e735?w=600',
+    image: 'https://images.unsplash.com/photo-1585320806297-9794b3e4eeae?w=600',
   },
 ];
 
