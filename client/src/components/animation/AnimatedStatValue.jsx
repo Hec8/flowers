@@ -13,14 +13,14 @@ export default function AnimatedStatValue({ value, suffix = '', className = 'tex
 
     gsap.fromTo(
       ref.current,
-      { ...FROM.section, y: 24 },
+      { ...FROM.card, y: 32 },
       {
         opacity: 1,
         y: 0,
         scale: 1,
         rotation: 0,
         duration: DURATION.section,
-        ease: EASE.entrance,
+        ease: EASE.card,
         scrollTrigger: buildScrollTriggerConfig(ref.current, {
           trigger: ref.current,
         }),

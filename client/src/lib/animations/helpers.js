@@ -6,11 +6,20 @@ export function prefersReducedMotion() {
     && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 }
 
-/** Vérifie si un élément est déjà visible dans le viewport au montage */
-function isInViewport(el) {
-  if (!el) return false;
-  const rect = el.getBoundingClientRect();
-  return rect.top < window.innerHeight && rect.bottom > 0;
+function resolveEase(selector, options = {}) {
+  if (options.ease) return options.ease;
+  if (selector?.includes('card') || selector?.includes('row') || selector?.includes('article')) {
+    return EASE.card;
+  }
+  return EASE.section;
+}
+
+function resolveFrom(selector, options = {}) {
+  if (options.from) return options.from;
+  if (selector?.includes('card') || selector?.includes('row') || selector?.includes('article')) {
+    return FROM.card;
+  }
+  return FROM.section;
 }
 
 /** Config ScrollTrigger pour les tweens inline (AnimatedStatValue, etc.) */
@@ -24,14 +33,8 @@ export function buildScrollTriggerConfig(container, options = {}) {
 }
 
 /**
- * Révèle des éléments en cascade au scroll.
- *
- * Stratégie robuste :
- * - On utilise ScrollTrigger avec toggleActions 'play none none reverse'
- *   → révélation à l'entrée, retour à l'état initial quand on quitte
- *   → mais pour qu'ils restent visibles une fois révélés, on track "hasPlayed"
- * - Si la section est déjà dans le viewport au montage : révélation immédiate
- *   sans masquage préalable (évite le flash blanc).
+ * Révèle des éléments en cascade au scroll (descente ET remontée).
+ * Combinaison translateY + fade + scale avec toggleActions bidirectionnel.
  */
 export function scrollStaggerIn(container, selector, options = {}) {
   if (!container) return null;
@@ -42,49 +45,30 @@ export function scrollStaggerIn(container, selector, options = {}) {
 
   if (!targets.length) return null;
 
-  const from = options.from ?? FROM.section;
+  const from = resolveFrom(selector, options);
   const duration = options.duration ?? DURATION.section;
-  const ease = options.ease ?? EASE.entrance;
+  const ease = resolveEase(selector, options);
   const staggerVal = options.stagger ?? STAGGER.list;
   const stagger = typeof staggerVal === 'object'
     ? staggerVal
     : { each: staggerVal, from: 'start' };
 
-  const animateIn = () => {
-    gsap.to(targets, {
-      y: 0,
-      x: 0,
-      scale: 1,
-      opacity: 1,
-      rotation: 0,
-      force3D: true,
-      duration,
-      ease,
-      stagger,
-      overwrite: 'auto',
-    });
-  };
-
-  // Si la section est déjà visible au chargement → révélation immédiate, pas de masquage
-  if (isInViewport(container)) {
-    gsap.set(targets, { clearProps: 'all' });
-    return null;
-  }
-
-  // Masquer les éléments hors viewport
-  gsap.set(targets, { ...from, force3D: true });
-
-  // ScrollTrigger : révèle à l'entrée ET à la remontée, jamais re-caché
-  let revealed = false;
-  return ScrollTrigger.create({
-    trigger: container,
-    start: options.start ?? SCROLL_TRIGGER.start,
-    onEnter: () => { if (!revealed) { revealed = true; animateIn(); } else { animateIn(); } },
-    onEnterBack: () => { animateIn(); },
+  return gsap.from(targets, {
+    ...from,
+    force3D: true,
+    duration,
+    ease,
+    stagger,
+    scrollTrigger: {
+      trigger: container,
+      start: options.start ?? SCROLL_TRIGGER.start,
+      toggleActions: SCROLL_TRIGGER.toggleActions,
+      ...options.scrollTrigger,
+    },
   });
 }
 
-/** Entrée hero au chargement */
+/** Entrée hero spectaculaire en cascade avec rebond */
 export function heroCascade(container, selector, options = {}) {
   const targets = container.querySelectorAll(selector);
   if (!targets.length) return null;
@@ -97,21 +81,22 @@ export function heroCascade(container, selector, options = {}) {
     opacity: 1,
     rotation: 0,
     duration: options.duration ?? DURATION.hero,
-    ease: options.ease ?? EASE.entrance,
+    ease: options.ease ?? EASE.card,
     stagger: options.stagger ?? STAGGER.list,
-    delay: options.delay ?? 0.12,
+    delay: options.delay ?? 0.15,
   });
 }
 
-/** Header slide down + fade au chargement */
+/** Header slide down + fade + scale au chargement */
 export function headerEntrance(headerEl) {
   if (!headerEl) return null;
   gsap.set(headerEl, { ...FROM.header, force3D: true });
   return gsap.to(headerEl, {
     y: 0,
+    scale: 1,
     opacity: 1,
     duration: DURATION.section,
-    ease: EASE.entrance,
+    ease: EASE.section,
   });
 }
 
@@ -122,13 +107,13 @@ export function resetNavLinks(links) {
 
 export function animateMobileMenuOpen(links) {
   if (!links?.length || prefersReducedMotion()) return null;
-  gsap.set(links, { x: -24, opacity: 0, scale: 0.95 });
+  gsap.set(links, { x: -28, opacity: 0, scale: 0.9 });
   return gsap.to(links, {
     x: 0,
     opacity: 1,
     scale: 1,
     duration: DURATION.micro,
-    ease: EASE.entrance,
+    ease: EASE.card,
     stagger: { each: STAGGER.menu, from: 'start' },
   });
 }
@@ -136,12 +121,12 @@ export function animateMobileMenuOpen(links) {
 export function animateMobileMenuClose(links) {
   if (!links?.length || prefersReducedMotion()) return null;
   return gsap.to(links, {
-    x: -16,
+    x: -20,
     opacity: 0,
-    scale: 0.97,
+    scale: 0.94,
     duration: 0.28,
     ease: EASE.standard,
-    stagger: { each: 0.05, from: 'end' },
+    stagger: { each: 0.08, from: 'end' },
   });
 }
 
@@ -149,16 +134,16 @@ export function pulseBadge(el) {
   if (!el || prefersReducedMotion()) return;
   gsap.fromTo(
     el,
-    { scale: 1.55 },
-    { scale: 1, duration: DURATION.micro, ease: EASE.elastic },
+    { scale: 1.6, opacity: 0.6 },
+    { scale: 1, opacity: 1, duration: DURATION.micro, ease: EASE.card },
   );
 }
 
 export function animateAddToCartButton(btn) {
   if (!btn || prefersReducedMotion()) return;
   gsap.timeline()
-    .to(btn, { scale: 0.9, duration: 0.1, ease: 'power3.in' })
-    .to(btn, { scale: 1, duration: DURATION.micro, ease: EASE.elastic });
+    .to(btn, { scale: 0.88, duration: 0.1, ease: 'power3.in' })
+    .to(btn, { scale: 1, duration: DURATION.micro, ease: EASE.card });
 }
 
 export function bindProductCardHover(cardEl, imageEl) {
@@ -167,13 +152,13 @@ export function bindProductCardHover(cardEl, imageEl) {
   const onEnter = () => {
     gsap.to(cardEl, {
       y: -8,
-      scale: 1.02,
-      boxShadow: '0 16px 32px rgba(0,0,0,0.13)',
+      scale: 1.03,
+      boxShadow: '0 20px 40px rgba(0,0,0,0.18)',
       duration: DURATION.hover,
-      ease: EASE.entrance,
+      ease: EASE.card,
     });
     if (imageEl) {
-      gsap.to(imageEl, { scale: 1.07, duration: DURATION.hover, ease: EASE.standard });
+      gsap.to(imageEl, { scale: 1.08, duration: DURATION.hover, ease: EASE.card });
     }
   };
 
@@ -203,7 +188,7 @@ export function bindImageZoomHover(imageEl, scale = 1.08) {
   if (!imageEl || prefersReducedMotion()) return () => {};
 
   const parent = imageEl.parentElement;
-  const onEnter = () => gsap.to(imageEl, { scale, duration: DURATION.hover, ease: EASE.entrance });
+  const onEnter = () => gsap.to(imageEl, { scale, duration: DURATION.hover, ease: EASE.card });
   const onLeave = () => gsap.to(imageEl, { scale: 1, duration: DURATION.hover, ease: EASE.standard });
 
   (parent || imageEl).addEventListener('mouseenter', onEnter);
@@ -220,7 +205,7 @@ export function flipProductGrid(gridEl, flipStateRef) {
   Flip.from(flipStateRef.current, {
     duration: DURATION.flip,
     ease: EASE.standard,
-    stagger: 0.06,
+    stagger: STAGGER.list,
     absolute: true,
     prune: true,
   });
@@ -234,7 +219,7 @@ export function captureFlipState(gridEl, flipStateRef) {
 
 export function animateModalOpen(overlay, panel) {
   gsap.set(overlay, { opacity: 0 });
-  gsap.set(panel, { scale: 0.85, opacity: 0, y: 28 });
+  gsap.set(panel, { scale: 0.82, opacity: 0, y: 36 });
 
   return gsap.timeline()
     .to(overlay, { opacity: 1, duration: DURATION.modal, ease: EASE.standard })
@@ -243,16 +228,16 @@ export function animateModalOpen(overlay, panel) {
       opacity: 1,
       y: 0,
       duration: DURATION.modal,
-      ease: EASE.entrance,
+      ease: EASE.card,
     }, '-=0.35');
 }
 
 export function animateModalClose(overlay, panel, onComplete) {
   return gsap.timeline({ onComplete })
     .to(panel, {
-      scale: 0.9,
+      scale: 0.88,
       opacity: 0,
-      y: 16,
+      y: 20,
       duration: 0.32,
       ease: 'power3.in',
     })
@@ -275,34 +260,34 @@ export function animateCounter(el, endValue, options = {}) {
 
 export function pageEnter(el) {
   if (!el) return null;
-  gsap.set(el, { autoAlpha: 0, y: 20, scale: 0.98, force3D: true });
+  gsap.set(el, { autoAlpha: 0, y: 32, scale: 0.94, force3D: true });
   return gsap.to(el, {
     autoAlpha: 1,
     y: 0,
     scale: 1,
     duration: DURATION.page,
-    ease: EASE.entrance,
+    ease: EASE.section,
   });
 }
 
 export function animateStepIn(el, direction = 1) {
   if (!el) return null;
-  gsap.set(el, { x: 48 * direction, opacity: 0, scale: 0.96 });
+  gsap.set(el, { x: 56 * direction, opacity: 0, scale: 0.92 });
   return gsap.to(el, {
     x: 0,
     opacity: 1,
     scale: 1,
     duration: DURATION.section,
-    ease: EASE.entrance,
+    ease: EASE.card,
   });
 }
 
 export function animateCartItemOut(el, onComplete) {
   if (!el || prefersReducedMotion()) return onComplete?.();
   return gsap.to(el, {
-    x: -48,
+    x: -56,
     opacity: 0,
-    scale: 0.96,
+    scale: 0.92,
     duration: DURATION.micro,
     ease: EASE.standard,
     onComplete,
@@ -313,31 +298,31 @@ export function animateNumberPulse(el) {
   if (!el) return;
   gsap.fromTo(
     el,
-    { scale: 1.15, opacity: 0.5 },
-    { scale: 1, opacity: 1, duration: DURATION.micro, ease: EASE.entrance },
+    { scale: 1.2, opacity: 0.5 },
+    { scale: 1, opacity: 1, duration: DURATION.micro, ease: EASE.card },
   );
 }
 
 export function bindSkeletonPulse(elements) {
   if (!elements?.length) return null;
   return gsap.to(elements, {
-    opacity: 0.4,
-    scale: 0.98,
+    opacity: 0.35,
+    scale: 0.96,
     duration: 0.7,
     ease: 'power3.inOut',
-    stagger: { each: 0.1, repeat: -1, yoyo: true },
+    stagger: { each: STAGGER.list, repeat: -1, yoyo: true },
   });
 }
 
 export function animateSuccessIcon(el) {
   if (!el) return null;
-  gsap.set(el, { scale: 0, opacity: 0, rotation: -30 });
+  gsap.set(el, { scale: 0, opacity: 0, rotation: -35 });
   return gsap.to(el, {
     scale: 1,
     opacity: 1,
     rotation: 0,
     duration: DURATION.section,
-    ease: EASE.entrance,
+    ease: EASE.card,
   });
 }
 
@@ -345,8 +330,8 @@ export function animateImageSwap(imgEl) {
   if (!imgEl) return;
   gsap.fromTo(
     imgEl,
-    { scale: 0.88, opacity: 0, rotation: 2 },
-    { scale: 1, opacity: 1, rotation: 0, duration: DURATION.micro, ease: EASE.entrance },
+    { scale: 0.85, opacity: 0, rotation: 3 },
+    { scale: 1, opacity: 1, rotation: 0, duration: DURATION.micro, ease: EASE.card },
   );
 }
 

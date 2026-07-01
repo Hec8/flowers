@@ -2,6 +2,7 @@ import prisma from '../config/prisma.js';
 import { AppError } from '../utils/AppError.js';
 import { paginate, paginationMeta, generateOrderNumber } from '../utils/helpers.js';
 import { sendEmail } from '../config/mailer.js';
+import { orderConfirmationEmail } from '../templates/emailTemplates.js';
 import { createSlug } from '../utils/slug.js';
 import { resolveProductFromCartItem, syncClientItemsToCart } from '../utils/cartHelpers.js';
 import { createFedaPayTransaction, buildFedaPayCallbackUrl, regenerateFedaPayPaymentUrl } from '../services/fedapayService.js';
@@ -140,16 +141,12 @@ export const addToCart = async (req, res) => {
     where: { userId_productId: { userId: req.user.id, productId: product.id } },
   });
 
-  const item = existing
-    ? await prisma.cartItem.update({
-        where: { id: existing.id },
-        data: { quantity: existing.quantity + quantity },
-        include: cartInclude,
-      })
-    : await prisma.cartItem.create({
-        data: { userId: req.user.id, productId: product.id, quantity },
-        include: cartInclude,
-      });
+  const item = await prisma.cartItem.upsert({
+    where: { userId_productId: { userId: req.user.id, productId: product.id } },
+    update: { quantity: { increment: quantity } },
+    create: { userId: req.user.id, productId: product.id, quantity },
+    include: cartInclude,
+  });
 
   res.status(201).json({ success: true, data: item });
 };
@@ -311,17 +308,24 @@ export const createOrder = async (req, res) => {
     }
   }
 
-  await sendEmail({
-    to: req.user.email,
-    subject: `Confirmation de commande ${order.orderNumber} — NFlowers`,
-    html: `
-      <h2>Merci pour votre commande !</h2>
-      <p>Numéro de commande : <strong>${order.orderNumber}</strong></p>
-      <p>Total : <strong>${totalAmount} FCFA</strong></p>
-      <p>Statut : ${order.status}</p>
-      ${paymentUrl ? '<p>Finalisez votre paiement via le lien FedaPay envoyé lors du checkout.</p>' : ''}
-    `,
-  });
+  // Pour les paiements non-FedaPay (COD, etc.) : e-mail immédiat car la commande est directement confirmée
+  if (paymentMethod !== 'FEADAPAY') {
+    try {
+      await sendEmail({
+        to: req.user.email,
+        subject: `Commande confirmée ${order.orderNumber} — NFlowers`,
+        html: orderConfirmationEmail({
+          orderNumber: order.orderNumber,
+          totalAmount,
+          status: order.status,
+          paymentUrl: null,
+        }),
+      });
+    } catch (mailErr) {
+      console.error('[Email] Erreur envoi confirmation commande:', mailErr.message);
+    }
+  }
+  // Pour FedaPay : l'e-mail est envoyé par paymentController.js quand le paiement est confirmé
 
   res.status(201).json({ success: true, data: order, paymentUrl });
 };

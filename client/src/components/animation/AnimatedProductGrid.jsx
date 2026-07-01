@@ -9,9 +9,7 @@ export default function AnimatedProductGrid({ products, className = '', children
   const gridRef = useRef(null);
 
   useGsapAnimations(gridRef, () => {
-    scrollStaggerIn(gridRef.current, '[data-animate-card]', {
-      from: { y: 28, opacity: 0, scale: 0.95 },
-    });
+    scrollStaggerIn(gridRef.current, '[data-animate-card]');
   }, [products.length]);
 
   return (

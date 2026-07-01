@@ -2,35 +2,37 @@
 
 export const EASE = {
   standard: 'power3.out',
-  entrance: 'back.out(1.4)',
+  section: 'power3.out',
+  card: 'back.out(1.7)',
+  entrance: 'back.out(1.7)',
   elastic: 'elastic.out(1, 0.5)',
 };
 
 export const DURATION = {
   micro: 0.45,
-  hover: 0.3,
-  section: 0.75,
-  page: 0.55,
+  hover: 0.32,
+  section: 0.8,
+  page: 0.6,
   modal: 0.5,
   flip: 0.65,
-  hero: 0.85,
+  hero: 1,
 };
 
 export const STAGGER = {
-  list: 0.10,
-  menu: 0.09,
-  table: 0.07,
+  list: 0.12,
+  menu: 0.1,
+  table: 0.1,
 };
 
 export const SCROLL_TRIGGER = {
-  start: 'top 88%',
-  /** Joue une seule fois par sens — jamais de re-hide */
-  toggleActions: 'play none none none',
+  start: 'top 85%',
+  toggleActions: 'play reverse play reverse',
 };
 
 export const FROM = {
-  section: { y: 40, scale: 0.92, opacity: 0 },
-  header: { y: -28, opacity: 0 },
-  hero: { y: 40, scale: 0.82, opacity: 0, rotation: -2 },
-  step: { x: 48, opacity: 0, scale: 0.96 },
+  section: { y: 48, scale: 0.92, opacity: 0 },
+  card: { y: 40, scale: 0.88, opacity: 0 },
+  header: { y: -32, scale: 0.96, opacity: 0 },
+  hero: { y: 56, scale: 0.75, opacity: 0, rotation: -3 },
+  step: { x: 48, opacity: 0, scale: 0.94 },
 };

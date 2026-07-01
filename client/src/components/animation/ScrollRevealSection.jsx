@@ -3,8 +3,8 @@ import { useGsapAnimations } from '../../hooks/useGsapAnimations';
 import { scrollStaggerIn } from '../../lib/animations/helpers';
 
 /**
- * Wrap qui révèle ses enfants au scroll (descend ET remonte).
- * Les éléments restent visibles une fois révélés — pas de re-hide.
+ * Wrap qui révèle ses enfants au scroll (descente ET remontée).
+ * translateY + fade + scale avec toggleActions bidirectionnel.
  */
 export default function ScrollRevealSection({
   children,

@@ -9,6 +9,7 @@ import {
 } from '../utils/jwt.js';
 import { generateResetToken } from '../utils/helpers.js';
 import { sendEmail } from '../config/mailer.js';
+import { passwordResetEmail } from '../templates/emailTemplates.js';
 
 const SALT_ROUNDS = 12;
 
@@ -201,11 +202,7 @@ export const forgotPassword = async (req, res) => {
     await sendEmail({
       to: email,
       subject: 'Réinitialisation de votre mot de passe — NFlowers',
-      html: `
-        <h2>Mot de passe oublié ?</h2>
-        <p>Cliquez sur le lien ci-dessous pour réinitialiser votre mot de passe (valide 1h) :</p>
-        <a href="${resetUrl}">${resetUrl}</a>
-      `,
+      html: passwordResetEmail({ name: user.name, resetUrl }),
     });
   }
 

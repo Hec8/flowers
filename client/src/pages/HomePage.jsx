@@ -138,7 +138,7 @@ export default function HomePage() {
 
   useGsapAnimations(heroRef, () => {
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-    heroCascade(heroRef.current, '[data-hero-item]', { stagger: 0.1, delay: 0.05 });
+    heroCascade(heroRef.current, '[data-hero-item]', { stagger: 0.12, delay: 0.1 });
   }, []);
 
   const categories = [
@@ -248,10 +248,10 @@ export default function HomePage() {
         <img data-animate-block src={VALEURS_IMAGE} alt="Serre NFlowers" className="w-full h-64 md:h-auto min-h-[280px] object-cover" />
       </ScrollRevealSection>
 
-      {/* ─── Instagram (section manquante) ─── */}
-      <section className="py-12 px-4 bg-white">
+      {/* ─── Instagram ─── */}
+      <ScrollRevealSection className="py-12 px-4 bg-white" selector="[data-animate-block], h2">
         <div className="max-w-7xl mx-auto">
-          <h2 className="text-center text-lg sm:text-xl font-medium mb-8">
+          <h2 data-animate-block className="text-center text-lg sm:text-xl font-medium mb-8">
             Suivez-nous sur Instagram{' '}
             <a href="https://instagram.com" className="text-primary font-semibold hover:underline">@nflowers</a>
           </h2>
@@ -261,7 +261,7 @@ export default function HomePage() {
             </button>
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4 px-0 sm:px-10">
               {HOME_INSTAGRAM_LOCAL.map((img) => (
-                <div key={img.src} className="aspect-square overflow-hidden rounded-sm">
+                <div key={img.src} data-animate-block className="aspect-square overflow-hidden rounded-sm">
                   <img src={img.src} alt={img.alt} className="w-full h-full object-cover hover:scale-105 transition-transform duration-300" />
                 </div>
               ))}
@@ -271,19 +271,19 @@ export default function HomePage() {
             </button>
           </div>
         </div>
-      </section>
+      </ScrollRevealSection>
 
-      {/* ─── Grille éco-jardinage (section manquante) ─── */}
-      <section className="py-12 px-4 bg-white border-t border-gray-100">
+      {/* ─── Grille éco-jardinage ─── */}
+      <ScrollRevealSection className="py-12 px-4 bg-white border-t border-gray-100" selector="[data-animate-block]">
         <div className="max-w-7xl mx-auto grid sm:grid-cols-2 gap-x-12 gap-y-10">
           {HOME_ECO_BLOCKS.map((block) => (
-            <div key={block.title}>
+            <div key={block.title} data-animate-block>
               <h3 className="font-bold text-gray-900 mb-3 text-sm sm:text-base">{block.title}</h3>
               <p className="text-sm text-gray-600 leading-relaxed">{block.text}</p>
             </div>
           ))}
         </div>
-      </section>
+      </ScrollRevealSection>
 
       <ScrollRevealSection className="bg-green-50 py-8" selector="[data-animate-trust]">
         <div className="max-w-7xl mx-auto px-4 grid grid-cols-2 md:grid-cols-4 gap-6 text-center">

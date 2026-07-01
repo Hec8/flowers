@@ -8,10 +8,7 @@ export function useTableRowStagger(rowSelector = '[data-animate-row]') {
   const ref = useRef(null);
 
   useGsapAnimations(ref, () => {
-    scrollStaggerIn(ref.current, rowSelector, {
-      stagger: STAGGER.table,
-      from: { y: 20, scale: 1, opacity: 0 },
-    });
+    scrollStaggerIn(ref.current, rowSelector, { stagger: STAGGER.table });
   }, []);
 
   return ref;

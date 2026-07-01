@@ -29,10 +29,7 @@ export default function CartPage() {
 
   useGsapAnimations(listRef, () => {
     if (items.length) {
-      scrollStaggerIn(listRef.current, '[data-animate-cart-item]', {
-        from: { y: 32, scale: 0.94, opacity: 0 },
-        start: 'top 95%',
-      });
+      scrollStaggerIn(listRef.current, '[data-animate-cart-item]', { start: 'top 95%' });
     }
   }, [items.length]);
 

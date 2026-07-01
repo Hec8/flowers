@@ -40,7 +40,7 @@ export default function MaisonDecoPage() {
 
   useGsapAnimations(gridRef, () => {
     if (!gridRef.current) return;
-    scrollStaggerIn(gridRef.current, '[data-card]', { from: { y: 40, opacity: 0 } });
+    scrollStaggerIn(gridRef.current, '[data-card]');
   }, [subcategory]);
 
   const activeTab = MAISON_DECO_TABS.find((t) => t.subcategory === subcategory) || MAISON_DECO_TABS[0];
