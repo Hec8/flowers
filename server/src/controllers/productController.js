@@ -36,10 +36,10 @@ export const getProducts = async (req, res) => {
 
   if (search) {
     where.OR = [
-      { name: { contains: search, mode: 'insensitive' } },
-      { description: { contains: search, mode: 'insensitive' } },
-      { virtues: { contains: search, mode: 'insensitive' } },
-      { flowerLanguage: { contains: search, mode: 'insensitive' } },
+      { name: { contains: search } },
+      { description: { contains: search } },
+      { virtues: { contains: search } },
+      { flowerLanguage: { contains: search } },
     ];
   }
 
@@ -143,8 +143,8 @@ export const adminGetProducts = async (req, res) => {
   const where = search
     ? {
         OR: [
-          { name: { contains: search, mode: 'insensitive' } },
-          { description: { contains: search, mode: 'insensitive' } },
+          { name: { contains: search } },
+          { description: { contains: search } },
         ],
       }
     : {};

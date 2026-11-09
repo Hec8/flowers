@@ -7,3 +7,8 @@ build/
 coverage/
 .vite/
 uploads/
+
+# Secrets — ne jamais publier
+.env
+server/.env
+client/.env

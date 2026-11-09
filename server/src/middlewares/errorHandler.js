@@ -5,7 +5,7 @@ export const errorHandler = (err, req, res, next) => {
   if (err.code === 'P1001') {
     return res.status(503).json({
       success: false,
-      message: 'Base de données inaccessible. Vérifiez votre connexion PostgreSQL / Neon.',
+      message: 'Base de données inaccessible. Vérifiez DATABASE_URL (MySQL).',
     });
   }
 

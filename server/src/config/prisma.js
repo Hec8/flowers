@@ -16,8 +16,8 @@ function isConnectionError(err) {
 const basePrisma = new PrismaClient({ log: ['error'] });
 
 /**
- * Prisma avec retry automatique sur les erreurs de connexion Neon.
- * Neon serverless peut couper la connexion après inactivité.
+ * Prisma avec retry automatique sur les erreurs de connexion à la base.
+ * Une base distante peut couper la connexion après inactivité.
  * On retente jusqu'à 3 fois avec un délai croissant avant de propager l'erreur.
  */
 const prisma = basePrisma.$extends({

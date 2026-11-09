@@ -1,6 +1,8 @@
 # NFlowers — E-commerce Fleurs Naturelles
 
-Application web fullstack de vente de fleurs et plantes naturelles, développée en monorepo React + Express + PostgreSQL.
+Application web fullstack de vente de fleurs et plantes naturelles, développée en monorepo React + Express + MySQL.
+
+> **Mise en ligne (cPanel, sans SSH)** : voir [DEPLOIEMENT.md](./DEPLOIEMENT.md)
 
 > **Documentation complète** : voir [DOCUMENTATION.md](./DOCUMENTATION.md) — guide technique détaillé (architecture, arborescence, flux métier, soutenance).
 
@@ -45,7 +47,7 @@ Flowers/
 ## Prérequis
 
 - Node.js 18+
-- PostgreSQL 14+
+- MySQL 8+ (ou MariaDB 10.5+)
 - Compte Cloudinary (optionnel — placeholder si non configuré)
 - Compte SMTP (optionnel — emails simulés en console)
 
@@ -126,4 +128,4 @@ Configurable via `ADMIN_EMAIL` et `ADMIN_PASSWORD` dans `server/.env`.
 
 **Frontend :** React 19, Vite, Tailwind CSS 4, React Router 7, TanStack Query, React Hook Form + Zod, Sonner, Recharts, Lucide Icons
 
-**Backend :** Express, Prisma, PostgreSQL, JWT (access + refresh), Bcrypt, Multer, Cloudinary, Nodemailer, Helmet, CORS, Rate Limiter
+**Backend :** Express, Prisma, MySQL, JWT (access + refresh), Bcrypt, Multer, Cloudinary, Nodemailer, Helmet, CORS, Rate Limiter

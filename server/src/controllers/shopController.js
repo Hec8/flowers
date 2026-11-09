@@ -636,8 +636,8 @@ export const adminGetUsers = async (req, res) => {
     role: 'CLIENT',
     ...(search && {
       OR: [
-        { name: { contains: search, mode: 'insensitive' } },
-        { email: { contains: search, mode: 'insensitive' } },
+        { name: { contains: search } },
+        { email: { contains: search } },
       ],
     }),
   };

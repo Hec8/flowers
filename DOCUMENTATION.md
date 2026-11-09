@@ -40,7 +40,7 @@ NFlowers est une plateforme e-commerce permettant de :
 | Couche | Technologies |
 |--------|--------------|
 | **Frontend** | React 19, Vite 8, Tailwind CSS 4, React Router 7, TanStack Query, GSAP, Recharts |
-| **Backend** | Node.js, Express 4, Prisma 6, PostgreSQL |
+| **Backend** | Node.js, Express 4, Prisma 6, MySQL |
 | **Auth** | JWT (access + refresh token), Bcrypt |
 | **Paiement** | FedaPay SDK |
 | **Images admin** | Cloudinary (optionnel) |
@@ -198,7 +198,7 @@ server/prisma/
 ### Prérequis
 
 - Node.js 18+
-- PostgreSQL 14+ (local ou cloud : Neon, Supabase, etc.)
+- MySQL 8+ ou MariaDB 10.5+ (local ou chez l'hébergeur)
 - Compte FedaPay sandbox (pour tester les paiements)
 
 ### Étapes
@@ -256,7 +256,7 @@ npm run dev
                            ▼
 ┌─────────────────────────────────────────────────────────────┐
 │                   SERVEUR (Express)                          │
-│  Routes ──► Controllers ──► Prisma ──► PostgreSQL           │
+│  Routes ──► Controllers ──► Prisma ──► MySQL           │
 │                  │                                           │
 │                  ├──► FedaPay (paiement)                     │
 │                  ├──► Cloudinary (images admin)              │
@@ -502,7 +502,7 @@ Vite les bundle au build → URLs locales fiables, pas besoin de CDN pour le cat
 | Besoin | Solution |
 |--------|----------|
 | Maquettes riches sans CMS lourd | Fichiers JS + images PNG locales |
-| Panier, stock, commandes réels | PostgreSQL |
+| Panier, stock, commandes réels | MySQL |
 | Site jamais vide en démo | Statiques toujours affichés |
 | Produits ajoutés par l'admin | API s'ajoute après les statiques |
 | Checkout fonctionnel | Sync slug → ID DB |
@@ -680,7 +680,7 @@ Les éléments **restent visibles** une fois animés (pas de disparition au scro
 
 | Variable | Description |
 |----------|-------------|
-| `DATABASE_URL` | URL PostgreSQL |
+| `DATABASE_URL` | URL MySQL |
 | `JWT_ACCESS_SECRET` | Secret token court |
 | `JWT_REFRESH_SECRET` | Secret token long |
 | `CLIENT_URL` | URL frontend (CORS, emails, callback FedaPay) |
@@ -725,7 +725,7 @@ cd server && npx prisma generate && npx prisma db push && npm run db:seed
 cd .. && npm run dev
 ```
 
-> Si la base est hébergée dans le cloud (Neon, Supabase), le testeur utilise la même `DATABASE_URL` dans son `.env` — pas besoin d'installer PostgreSQL localement.
+> Si la base est hébergée dans le cloud (chez l'hébergeur), le testeur utilise la même `DATABASE_URL` dans son `.env` — pas besoin d'installer MySQL localement.
 
 ### Déploiement production (schéma type)
 
@@ -733,7 +733,7 @@ cd .. && npm run dev
 |-----------|---------------------|
 | Frontend (`client/dist`) | Vercel, Netlify, Nginx |
 | Backend | Railway, Render, VPS |
-| PostgreSQL | Neon, Supabase, RDS |
+| MySQL | Base MySQL de l'hébergeur (cPanel), PlanetScale, RDS |
 | Images admin | Cloudinary |
 
 Build frontend :
@@ -748,7 +748,7 @@ VITE_API_URL=https://votre-api.com/api npm run build
 
 ### « Pourquoi React + Express et pas un framework tout-en-un ? »
 
-Séparation claire frontend / backend : le client peut être déployé sur un CDN, l'API sur un serveur Node. Prisma donne un ORM typé pour PostgreSQL. C'est une architecture classique et maintenable pour un e-commerce.
+Séparation claire frontend / backend : le client peut être déployé sur un CDN, l'API sur un serveur Node. Prisma donne un ORM typé pour MySQL. C'est une architecture classique et maintenable pour un e-commerce.
 
 ### « Pourquoi des produits statiques ET une base de données ? »
 
